@@ -2,7 +2,50 @@
 
 HTML (HyperText Markup Language) is the standard markup language for creating web pages. It describes the structure and content of web documents using elements and tags.
 
-### 1. Understanding HTML Structure
+### 1. How Browsers Render Pages (Critical Rendering Path)
+
+Browsers follow a well-defined pipeline to turn HTML + CSS into pixels on your screen:
+
+### Step-by-Step Rendering Process:
+
+1. **HTML Parsing**
+    
+    Browser reads HTML from top to bottom and builds the **DOM (Document Object Model)** — a tree-like structure of all elements.
+    
+2. **CSS Parsing**
+    
+    Browser parses CSS and builds the **CSSOM (CSS Object Model)** — a tree containing all styles.
+    
+3. **Render Tree Construction**
+    
+    Browser combines DOM + CSSOM to create the **Render Tree**.
+    
+    - Only **visible** elements are included (e.g., `display: none` elements are excluded).
+4. **Layout (Reflow)**
+    
+    Browser calculates the exact position and size of every element on the page (geometry).
+    
+5. **Paint**
+    
+    Browser fills pixels — colors, borders, shadows, text, images, etc.
+    
+6. **Composite**
+    
+    Browser layers the painted elements and sends them to the GPU for final display (modern browsers optimize this step heavily).
+    
+
+**Visual Flow**:
+
+```
+HTML → DOM
+CSS  → CSSOM
+       ↓
+   Render Tree → Layout (Reflow) → Paint → Composite
+```
+
+---
+
+### 2. **Understanding HTML Structure**
 
 The basic structure of an HTML document includes:
 
@@ -22,7 +65,7 @@ The basic structure of an HTML document includes:
 
 ---
 
-### 2. Understanding Tags and Building a Simple HTML Page
+### 3. **Understanding Tags and Building a Simple HTML Page**
 
 ### Essential tags:
 
@@ -34,7 +77,86 @@ The basic structure of an HTML document includes:
 
 ---
 
-### 3. Working with Text Elements
+### 4. Understanding Reflow & Repaint (Why Layout Shifts Happen)
+
+- **Reflow (Layout)**: When the browser recalculates positions and sizes of elements.
+    
+    **Expensive** operation.
+    
+- **Repaint**: When the browser redraws pixels without changing layout (e.g., color change).
+    
+    **Less expensive** than reflow.
+    
+
+**Common causes of unwanted Reflow + Layout Shifts**:
+
+- Adding/removing elements dynamically
+- Changing CSS properties like `width`, `height`, `margin`, `padding`, `font-size`
+- Reading `offsetWidth`, `offsetHeight` in JavaScript loops
+- Animating `height`, `width`, `top`, `left` instead of `transform`
+
+**Modern Solution (Prevent Layout Shifts)**:
+Use `transform` and `opacity` for animations instead of layout-affecting properties.
+
+**Example of Bad Practice (Causes Shift)**:
+
+```html
+<div id="box" style="width: 100px;">Content</div>
+<script>
+  box.style.width = "300px";   // Triggers Reflow
+</script>
+```
+
+**Good Practice**:
+
+```css
+.animate {
+  transition: transform 0.3s ease;
+}
+```
+
+---
+
+### 5. Semantic HTML Tags – Architectural Explanation
+
+Semantic tags clearly describe the **meaning** and **role** of content.
+
+| Tag | Purpose | Architectural Role | Example Use Case |
+| --- | --- | --- | --- |
+| `<header>` | Introductory content | Site header / Section header | Logo + Navigation |
+| `<nav>` | Major navigation links | Primary navigation block | Main menu |
+| `<main>` | The dominant, unique content of the document | Core content area (only one per page) | Main article / Product details |
+| `<section>` | Thematic grouping of content | Generic section (with heading) | About Us, Services |
+| `<article>` | Self-contained, reusable content | Independent content (can be syndicated) | Blog post, News story, Card |
+| `<aside>` | Tangentially related content | Sidebar, related links, advertisements | Sidebar widgets, Author bio |
+| `<footer>` | Footer of document or section | Closing information | Copyright, Links, Contact |
+
+**Production-Ready Semantic Structure**:
+
+```html
+<body>
+  <header>
+    <nav>...</nav>
+  </header>
+
+  <main>
+    <article>
+      <header><h1>Article Title</h1></header>
+      <section>...</section>
+    </article>
+  </main>
+
+  <aside>
+    <!-- Sidebar -->
+  </aside>
+
+  <footer>...</footer>
+</body>
+```
+
+---
+
+### 6. **Working with Text Elements**
 
 - **Headings (`h1` to `h6`)**: Define headings, `h1` being the largest.
 - **Paragraphs (`p`)**: Used for blocks of text.
@@ -81,7 +203,62 @@ The basic structure of an HTML document includes:
 
 ---
 
-### 4. Working with HTML Lists
+### 7. SEO Impact of Semantic HTML
+
+Search engines (Google, Bing, etc.) use semantic structure to **better understand** page content.
+
+**Benefits**:
+
+- Clear content hierarchy → Better indexing
+- Rich snippets (featured snippets, knowledge panels)
+- Improved accessibility signals = better rankings
+- Better mobile-first indexing
+
+**Best Practices for SEO**:
+
+- Use proper heading hierarchy (`<h1>` → `<h2>` → `<h3>`)
+- One `<h1>` per page
+- Use `<article>`, `<section>`, `<main>` correctly
+- Add proper `alt` text on images
+- Use semantic landmarks (`<nav>`, `<footer>`, etc.)
+
+---
+
+### 8. Accessibility Basics (ARIA & Inclusive Design)
+
+**Semantic HTML** is the foundation of accessibility.
+
+**Key Principles**:
+
+- Use native semantic elements whenever possible (they have built-in roles).
+- Only use ARIA when native HTML is insufficient.
+
+**Common ARIA Roles**:
+
+```html
+<!-- Good: Native semantic -->
+<button>Submit</button>
+
+<!-- When needed -->
+<div role="button" tabindex="0" aria-label="Submit form">Submit</div>
+
+<!-- Landmark roles (usually auto-applied by semantic tags) -->
+<nav aria-label="Main navigation">...</nav>
+<main aria-labelledby="main-title">...</main>
+```
+
+**Basic Accessibility Checklist**:
+
+- Proper heading hierarchy
+- Meaningful link text
+- `alt` text for images
+- Keyboard navigation support
+- Sufficient color contrast
+- Focus indicators
+
+---
+
+### 9. **Working with HTML Lists**
 
 - **Ordered List (`ol`)**: Numbered items.
 - **Unordered List (`ul`)**: Bulleted items.
@@ -105,7 +282,7 @@ The basic structure of an HTML document includes:
 
 ---
 
-### 5. Nested Elements in HTML
+### 10. **Nested Elements in HTML**
 
 HTML elements can contain other elements.
 
@@ -153,7 +330,7 @@ HTML elements can contain other elements.
 
 ```
 
-### 6. Working with Media Tags
+### 11. **Working with Media Tags**
 
 - **Image (`img`)**: Adds images.
 - **Video (`video`)**: Embeds videos.
@@ -171,9 +348,36 @@ HTML elements can contain other elements.
 </audio>
 ```
 
+```html
+<!-- Modern responsive image -->
+<img
+  src="image.jpg"
+  srcset="image-400.jpg 400w, image-800.jpg 800w, image-1200.jpg 1200w"
+  sizes="(max-width: 600px) 100vw, 50vw"
+  alt="Descriptive text"
+  loading="lazy"
+  width="1200"
+  height="675">
+
+<!-- Using <picture> for art direction -->
+<picture>
+  <source srcset="image.webp" type="image/webp">
+  <img src="image.jpg" alt="...">
+</picture>
+```
+
+**Best Practices**:
+
+- Always add `width` and `height` attributes to prevent layout shift
+- Use `loading="lazy"` for below-the-fold images
+- Prefer WebP/AVIF formats
+- Provide meaningful `alt` text
+
 ---
 
-### 7. HTML Attributes
+---
+
+### 12. **HTML Attributes**
 
 Attributes add properties to elements. Examples:
 
@@ -192,7 +396,7 @@ Attributes add properties to elements. Examples:
 
 ---
 
-### 8. Navigating Pages and Sections
+### 13. **Navigating Pages and Sections**
 
 - Use `anchor` tags to link between pages or sections within a page.
 - Add `id` attributes to target sections.
@@ -207,9 +411,20 @@ Attributes add properties to elements. Examples:
 <p>This is Section 1.</p>
 ```
 
+```html
+<!-- Internal linking -->
+<a href="/about">About Us</a>
+<a href="#section-id">Jump to Section</a>
+
+<!-- External linking -->
+<a href="<https://example.com>" target="_blank" rel="noopener noreferrer">
+  External Link
+</a>
+```
+
 ---
 
-### 9. Commenting Code in HTML
+### 14. **Commenting Code in HTML**
 
 Comments are ignored by browsers and useful for notes.
 
@@ -222,7 +437,7 @@ Comments are ignored by browsers and useful for notes.
 
 ---
 
-### 1. Understanding and Using `div` Tags
+### 15. **Understanding and Using `div` Tags**
 
 The `<div>` tag is a container used to group other HTML elements. It’s commonly used for layout and styling purposes.
 
@@ -237,7 +452,7 @@ The `<div>` tag is a container used to group other HTML elements. It’s commonl
 
 ---
 
-### 2. Understanding Semantic Tags
+### 16. **Understanding Semantic Tags**
 
 Semantic tags provide meaning to the structure of your HTML, improving readability and accessibility.
 
@@ -275,7 +490,7 @@ Semantic tags provide meaning to the structure of your HTML, improving readabili
 
 ---
 
-### 3. Differentiating Between Block and Inline Elements
+### 17. **Differentiating Between Block and Inline Elements**
 
 - **Block Elements**: Take up the full width available (e.g., `div`, `p`, `h1`).
 - **Inline Elements**: Only take up as much width as their content (e.g., `span`, `a`, `strong`).
@@ -289,7 +504,7 @@ Semantic tags provide meaning to the structure of your HTML, improving readabili
 
 ---
 
-### 4. Text Formatting Tags in HTML
+### 18. **Text Formatting Tags in HTML**
 
 Used to style or format text directly.
 
@@ -307,7 +522,7 @@ Used to style or format text directly.
 
 ---
 
-### 5. Working with HTML Symbols and Special Characters
+### 19. **Working with HTML Symbols and Special Characters**
 
 HTML provides entities for symbols and special characters.
 
@@ -330,7 +545,7 @@ HTML provides entities for symbols and special characters.
 
 ---
 
-### 6. Working with HTML Tables
+### 20. **Working with HTML Tables**
 
 Tables display data in rows and columns.
 
@@ -372,7 +587,7 @@ Tables display data in rows and columns.
 
 ---
 
-### 7. More Attributes and Tags Related to Tables
+### 21. **More Attributes and Tags Related to Tables**
 
 ### Additional Attributes:
 
@@ -381,7 +596,7 @@ Tables display data in rows and columns.
 - `border`: Defines the border width.
 - `cellpadding`: Space between cell content and border.
 - `cellspacing`: Space between cells.
-- **Table Attributes:
+- **Table Attributes:**
 
 ```html
 <table border="1" cellpadding="10" cellspacing="0">
@@ -412,15 +627,13 @@ Tables display data in rows and columns.
 
 ---
 
-### HTML Forms and Inputs
-
-### 1. What is a Form and Why is it Important?
+### 22. **What is a Form and Why is it Important?**
 
 A **form** in HTML is used to collect user inputs and send them to a server for processing. It is essential for functionalities like user registration, login, feedback, and payment submissions. Forms bridge the gap between the user interface and backend processing, enabling interactive web applications.
 
 ---
 
-### 2. Creating a Simple Form
+### 23. **Creating a Simple Form**
 
 HTML forms are created using various elements to capture input:
 
@@ -459,7 +672,7 @@ HTML forms are created using various elements to capture input:
 
 ---
 
-### 3. Types of Input Fields
+### 24. **Types of Input Fields**
 
 The `<input>` tag supports many types of fields:
 
@@ -502,7 +715,7 @@ The `<input>` tag supports many types of fields:
 
 ---
 
-### 4. Attributes of Form Elements
+### 25. **Attributes of Form Elements**
 
 ### Key Attributes for `<form>`:
 
@@ -537,9 +750,7 @@ The `<input>` tag supports many types of fields:
 
 ---
 
-### Media Tags in HTML
-
-### 1. Understanding Audio and Video Tags
+### 26. **Understanding Audio and Video Tags**
 
 The `<audio>` and `<video>` tags in HTML are used to embed multimedia content like sound and video into a webpage.
 
@@ -557,7 +768,7 @@ The `<audio>` and `<video>` tags in HTML are used to embed multimedia content li
 
 ---
 
-### 2. Attributes of Media Tags
+### 27. **Attributes of Media Tags**
 
 | Attribute | Description | Example |
 | --- | --- | --- |
@@ -570,6 +781,12 @@ The `<audio>` and `<video>` tags in HTML are used to embed multimedia content li
 | **`autoplay`** | Starts playing the media automatically (caution: can be intrusive). | `<video src="clip.mp4" autoplay>` |
 | **`controls`** | Adds play, pause, and other controls for the user. | `<audio src="song.mp3" controls>` |
 
+**Best Practices**:
+
+- Use descriptive link text
+- Add `rel="noopener noreferrer"` for external links (security)
+- Use proper navigation structure with `<nav>`
+
 ### Example with Attributes:
 
 ```html
@@ -579,7 +796,7 @@ The `<audio>` and `<video>` tags in HTML are used to embed multimedia content li
 
 ---
 
-### 3. Using the `<source>` Element for Alternative Media Files
+### 28. **Using the `<source>` Element for Alternative Media Files**
 
 The `<source>` element is used inside `<audio>` or `<video>` tags to specify multiple file formats, ensuring compatibility across different browsers.
 
@@ -597,7 +814,7 @@ In this example, the browser will try to play `video.mp4` first. If it doesn’t
 
 ---
 
-### 4. Understanding the Concept of Using `<iframe>`
+### 29. **Understanding the Concept of Using `<iframe>`**
 
 An **iframe** is used to embed another HTML document (e.g., a video, map, or website) within the current webpage.
 
